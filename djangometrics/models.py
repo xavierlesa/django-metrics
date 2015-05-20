@@ -15,7 +15,7 @@ class DjangoMetricManager(models.Manager):
             model = model.model
 
         ct = ContentType.objects.get_for_model(model)
-        qs = self.get_query_set(*args, **kwargs).filter(content_type=ct)
+        qs = self.get_queryset(*args, **kwargs).filter(content_type=ct)
 
         if hasattr(model, 'id') and getattr(model, 'id'):
             qs = qs.filter(object_id=model.id)
@@ -26,7 +26,7 @@ class DjangoMetricManager(models.Manager):
         if not isinstance(sites, collections.Iterable):
             sites = [sites]
 
-        return self.get_query_set(*args, **kwargs).filter(
+        return self.get_queryset(*args, **kwargs).filter(
                 models.Q(sites__in = sites) | models.Q(sites__isnull = True),
                 content_type__isnull = True, object_id__isnull = True
             )
