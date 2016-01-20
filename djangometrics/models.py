@@ -1,7 +1,10 @@
 # -*- coding:utf8 -*-
 
 from django.db import models
-from django.contrib.contenttypes.generic import GenericForeignKey
+try:
+    from django.contrib.contenttypes.generic import GenericForeignKey
+except ImportError:
+    from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
