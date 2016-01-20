@@ -5,6 +5,7 @@ try:
     from django.contrib.contenttypes.generic import GenericForeignKey
 except ImportError:
     from django.contrib.contenttypes.fields import GenericForeignKey
+from django.db.models.query import EmptyQuerySet
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
@@ -14,8 +15,10 @@ import collections
 class DjangoMetricManager(models.Manager):
     def get_for_model(self, model, *args, **kwargs):
         
-        if isinstance(model, collections.Iterable):
+        if isinstance(model, models.QuerySet):
             model = model.model
+        elif not isinstance(model, models.Model):
+            return [] 
 
         ct = ContentType.objects.get_for_model(model)
         qs = self.get_queryset(*args, **kwargs).filter(content_type=ct)
