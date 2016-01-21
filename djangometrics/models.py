@@ -14,14 +14,23 @@ import collections
 
 class DjangoMetricManager(models.Manager):
     def get_for_model(self, model, *args, **kwargs):
-        
-        if isinstance(model, models.QuerySet):
-            model = model.model
-        elif not isinstance(model, models.Model):
-            return [] 
+        try:
+            if isinstance(model, models.QuerySet):
+                model = model.model
+            elif not isinstance(model, models.Model):
+                return [] 
+        except AttributeError:
+            if isinstance(model, collections.Iterable):
+                model = model.model
 
         ct = ContentType.objects.get_for_model(model)
-        qs = self.get_queryset(*args, **kwargs).filter(content_type=ct)
+
+        try:
+            qs = self.get_query_set
+        except:
+            qs = self.get_queryset
+
+        qs = qs(*args, **kwargs).filter(content_type=ct)
 
         if hasattr(model, 'id') and getattr(model, 'id'):
             qs = qs.filter(object_id=model.id)
@@ -32,7 +41,12 @@ class DjangoMetricManager(models.Manager):
         if not isinstance(sites, collections.Iterable):
             sites = [sites]
 
-        return self.get_queryset(*args, **kwargs).filter(
+        try:
+            qs = self.get_query_set
+        except:
+            qs = self.get_queryset
+
+        return qs(*args, **kwargs).filter(
                 models.Q(sites__in = sites) | models.Q(sites__isnull = True),
                 content_type__isnull = True, object_id__isnull = True
             )
